@@ -1,0 +1,14 @@
+.axes {
+  path,
+  line {
+    fill: none;
+    stroke: lightgray;
+  }
+
+  text {
+    text-rendering: optimizeLegibility;
+    font-size: 10px;
+    fill: gray;
+    stroke: none;
+  }
+}
