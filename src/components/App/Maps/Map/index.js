@@ -9,7 +9,6 @@ import { ascending } from 'd3-array';
 
 const Map = ({ colorScale, path, geoJson, width, height, dt }) => {
   const topology = useSelector(state => state.global.topology);
-  const roads = useSelector(state => state.global.roads);
   const data = useSelector(mostRecentDataSelector);
   const allData = useSelector(state => state.global.data);
   const mostRecentDate = getMaxDate(data);
@@ -68,9 +67,6 @@ const Map = ({ colorScale, path, geoJson, width, height, dt }) => {
               }),
             )}
           />
-          {topojson.feature(roads, roads.objects['us-interstate-roads']).features.map((road, i) => {
-            return <path key={`road-for-${i}`} className="interstate-road" d={path(road)} />;
-          })}
         </g>
       </svg>
     </div>

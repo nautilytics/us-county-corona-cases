@@ -1,5 +1,5 @@
 import { initialState } from '../state/global';
-import { getData, getRoads, getTopology } from '../api';
+import { getData, getTopology } from '../api';
 import { IS_CLICKED } from '../../constant';
 
 // Actions
@@ -8,7 +8,6 @@ export const UPDATE_TOOLTIP = 'UPDATE_TOOLTIP';
 export const UPDATE_CURRENT_INDEX = 'UPDATE_CURRENT_INDEX';
 export const TOGGLE_PLAY = 'TOGGLE_PLAY';
 const UPDATE_DATA = 'UPDATE_DATA';
-const UPDATE_ROADS = 'UPDATE_ROADS';
 const UPDATE_TOPOLOGY = 'UPDATE_TOPOLOGY';
 const SHOW_ERROR = 'SHOW_ERROR';
 
@@ -35,11 +34,6 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         data: action.data,
-      };
-    case UPDATE_ROADS:
-      return {
-        ...state,
-        roads: action.roads,
       };
     case UPDATE_TOPOLOGY:
       return {
@@ -88,9 +82,9 @@ export function retrieveData() {
   return dispatch => {
     dispatch(toggleLoadingIcon(true));
 
-    Promise.all([getTopology(), getData(), getRoads()])
+    Promise.all([getTopology(), getData()])
       .then(results => {
-        const [topology, data, roads] = results;
+        const [topology, data] = results;
         dispatch({
           type: UPDATE_TOPOLOGY,
           topology,
@@ -98,10 +92,6 @@ export function retrieveData() {
         dispatch({
           type: UPDATE_DATA,
           data,
-        });
-        dispatch({
-          type: UPDATE_ROADS,
-          roads,
         });
       })
       .catch(err => {

@@ -1,17 +1,9 @@
 import { csv, json } from 'd3-fetch';
 import moment from 'moment';
 
-export const getRoads = () => {
-  return new Promise((resolve, reject) => {
-    json('./data/us-interstate-roads.json')
-      .then(response => resolve(response))
-      .catch(err => reject(err));
-  });
-};
-
 export const getTopology = () => {
   return new Promise((resolve, reject) => {
-    json('./data/counties-10m.json')
+    json('./data/counties-albers-10m.json')
       .then(response => resolve(response))
       .catch(err => reject(err));
   });
