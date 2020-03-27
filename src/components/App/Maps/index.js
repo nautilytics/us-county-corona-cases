@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { geoAlbersUsa, geoPath } from 'd3-geo';
+import { geoPath } from 'd3-geo';
 import { schemeRdYlGn } from 'd3-scale-chromatic';
 import { scaleThreshold } from 'd3-scale';
 import { descending, max } from 'd3-array';
@@ -12,24 +12,16 @@ import TopCounties from './TopCounties';
 import mostRecentDataSelector from '../../../redux/selectors/most.recent.data.selector';
 
 const Maps = () => {
-  const data = useSelector(state => state.global.data);
   const mostRecentData = useSelector(mostRecentDataSelector);
   const topology = useSelector(state => state.global.topology);
   const geoJson = topojson.feature(topology, topology.objects.counties);
 
   const width = 975;
   const height = 610;
-  const projection = geoAlbersUsa().fitExtent(
-    [
-      [5, 5],
-      [width, height],
-    ],
-    geoJson,
-  );
-  const path = geoPath(projection);
+  const path = geoPath();
 
   const colorScale = scaleThreshold()
-    .domain([1, 10, 20, 50, 100, 200, 500, max(data, xAccessor)])
+    .domain([1, 10, 20, 50, 100, 200, 500, max(mostRecentData, xAccessor)])
     .range(schemeRdYlGn[8].reverse());
 
   const topCounties = mostRecentData.sort((a, b) => descending(xAccessor(a), xAccessor(b))).slice(0, 10);
