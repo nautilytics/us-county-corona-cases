@@ -1,3 +1,17 @@
-#### US County Level Map of Coronavirus Cases
+#### US County Level Map of Coronavirus Cases with NYTimes County Level Data
 
-<img width="1438" alt="Screen Shot 2020-03-25 at 4 06 10 PM" src="https://user-images.githubusercontent.com/1707103/77688668-d8a90100-6f76-11ea-9549-dedcd1517a70.png">
+##### US County Map
+
+<img width="1439" alt="Screen Shot 2020-03-27 at 11 36 40 AM" src="https://user-images.githubusercontent.com/1707103/77772955-4f99d480-701f-11ea-93b8-e086151948bf.png">
+
+
+##### US County Map w/ Tooltip
+
+<img width="1438" alt="Screen Shot 2020-03-27 at 11 36 51 AM" src="https://user-images.githubusercontent.com/1707103/77772960-532d5b80-701f-11ea-8f87-31deb5b597bf.png">
+
+##### Installation
+
+```js
+yarn
+yarn start
+```
