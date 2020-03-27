@@ -8,7 +8,7 @@ const Path = ({ feature, className }) => {
   const pathRef = useRef(null);
   const [active, setActive] = useState(false);
   const [selected, setSelected] = useState(false);
-  const { properties, path, id, fill, confirmed, state, dayChange, dt, points, zipCodes } = feature;
+  const { properties, path, id, fill, confirmed, state, dt, points } = feature;
 
   const setTooltip = useCallback(item => dispatch({ type: UPDATE_TOOLTIP, item }), [dispatch]);
 
@@ -21,8 +21,6 @@ const Path = ({ feature, className }) => {
       dt,
       points,
       confirmed,
-      zipCodes,
-      dayChange,
       top: top - 10,
       left,
       isClicked: false,
@@ -39,8 +37,6 @@ const Path = ({ feature, className }) => {
       dt,
       points,
       confirmed,
-      zipCodes,
-      dayChange,
       top: top - 10,
       left,
       isClicked: true,

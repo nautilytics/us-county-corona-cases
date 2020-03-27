@@ -1,5 +1,4 @@
 import { csv, json } from 'd3-fetch';
-import { AVAILABLE_DATES, FILE_NAME, FILE_DATE_FORMAT } from '../constant';
 import moment from 'moment';
 
 export const getRoads = () => {
@@ -20,17 +19,17 @@ export const getTopology = () => {
 
 export const getData = () => {
   return new Promise((resolve, reject) => {
-    Promise.all(AVAILABLE_DATES.map(dt => csv(`./data/cases/${FILE_NAME}-${dt}.csv`)))
-      .then(response => {
+    csv('./data/cases/us-counties.csv')
+      .then(response =>
         resolve(
-          response.map((values, i) => {
+          response.map(d => {
             return {
-              dt: moment(AVAILABLE_DATES[i], FILE_DATE_FORMAT),
-              values,
+              ...d,
+              dt: moment(d.date, 'YYYY-MM-DD'),
             };
           }),
-        );
-      })
+        ),
+      )
       .catch(err => reject(err));
   });
 };

@@ -8,11 +8,11 @@ const Tooltip = () => {
 
   if (!tooltip) return null;
 
-  const { top, left, confirmed, name, state, dt, points, zipCodes } = tooltip;
+  const { top, left, confirmed, name, state, dt, points } = tooltip;
 
   const tooltipHeight = 325; // handle placement of tooltip
 
-  const borderColor = points[points.length - 1].color;
+  const borderColor = points.length ? points[points.length - 1].color : 'black';
   return (
     <div className="content tooltip" style={{ top: top - tooltipHeight < 0 ? top + tooltipHeight : top, left: left - 75 }}>
       <div

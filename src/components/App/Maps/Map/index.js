@@ -2,51 +2,45 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import * as topojson from 'topojson-client';
 import Path from './Path';
-import { NUMBER_FORMAT, AVAILABLE_DATES } from '../../../../constant';
-import { xAccessor } from '../../../../utils';
-import countyDataSelector from '../../../../redux/selectors/county.data.selector';
-import moment from 'moment';
+import { NUMBER_FORMAT } from '../../../../constant';
+import { getMaxDate, xAccessor } from '../../../../utils';
+import mostRecentDataSelector from '../../../../redux/selectors/most.recent.data.selector';
+import { ascending } from 'd3-array';
 
-const Map = ({ colorScale, path, idx, geoJson, width, height, dt }) => {
+const Map = ({ colorScale, path, geoJson, width, height, dt }) => {
   const topology = useSelector(state => state.global.topology);
   const roads = useSelector(state => state.global.roads);
-  const data = useSelector(countyDataSelector(idx));
+  const data = useSelector(mostRecentDataSelector);
   const allData = useSelector(state => state.global.data);
+  const mostRecentDate = getMaxDate(data);
 
   return (
     <div className="map">
-      <h4>{`Last updated at ${moment(AVAILABLE_DATES[idx], 'YYYY-MM-DD.HH.mm.ss').format('MMM DD, YYYY hh:mm a')}`}</h4>
+      <h4>{`Last updated on ${mostRecentDate.format('MMM DD, YYYY')}`}</h4>
       <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height}>
         <g className="map-container">
           {geoJson.features.map(feature => {
             const id = feature.id.toString().padStart(5, '0');
-            const matchingRow = data.find(x => x.fip_code === id);
+            const matchingRow = data.find(x => x.fips === id);
             let value = 0;
-            let dayChange = 0;
             let state = '';
-            let zipCodes = '';
             if (matchingRow) {
-              state = matchingRow.parent;
-              dayChange = matchingRow.confirmed_change;
-              zipCodes = matchingRow.zip_codes;
+              state = matchingRow.state;
               value = xAccessor(matchingRow);
-            } else {
-              const matchingStateProxy = data.find(x => x.fip_code.startsWith(id.slice(0, 2)));
-              if (matchingStateProxy) {
-                state = matchingStateProxy.parent;
-              }
             }
 
             // Find matching points
-            let points = [];
-            for (let i = 0; i < allData.length; i++) {
-              let y = 0;
-              const matchingIdRow = allData[i].values.find(g => g.fip_code === feature.id);
-              if (matchingIdRow) {
-                y = xAccessor(matchingIdRow);
-              }
-              points.push({ x: i, y, color: !y ? 'white' : colorScale(y) });
-            }
+            let points = allData
+              .filter(g => g.fips === id)
+              .sort((a, b) => ascending(a.dt, b.dt))
+              .map(h => {
+                return {
+                  ...h,
+                  x: h.dt,
+                  y: xAccessor(h),
+                  color: !xAccessor(h) ? 'white' : colorScale(xAccessor(h)),
+                };
+              });
 
             return (
               <Path
@@ -57,11 +51,9 @@ const Map = ({ colorScale, path, idx, geoJson, width, height, dt }) => {
                   id,
                   path: path(feature),
                   state,
+                  dt: mostRecentDate,
                   value,
-                  dt,
                   points,
-                  zipCodes,
-                  dayChange: NUMBER_FORMAT(dayChange),
                   confirmed: NUMBER_FORMAT(value),
                   fill: !value ? 'white' : colorScale(value),
                 }}

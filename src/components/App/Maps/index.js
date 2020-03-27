@@ -9,9 +9,11 @@ import Map from './Map';
 import ThresholdLegend from './ThresholdLegend';
 import * as topojson from 'topojson-client';
 import TopCounties from './TopCounties';
+import mostRecentDataSelector from '../../../redux/selectors/most.recent.data.selector';
 
 const Maps = () => {
   const data = useSelector(state => state.global.data);
+  const mostRecentData = useSelector(mostRecentDataSelector);
   const topology = useSelector(state => state.global.topology);
   const geoJson = topojson.feature(topology, topology.objects.counties);
 
@@ -27,36 +29,20 @@ const Maps = () => {
   const path = geoPath(projection);
 
   const colorScale = scaleThreshold()
-    .domain([1, 10, 20, 50, 100, 200, 500, Math.max(...max(data.map(d => d.values.map(xAccessor))))])
+    .domain([1, 10, 20, 50, 100, 200, 500, max(data, xAccessor)])
     .range(schemeRdYlGn[8].reverse());
 
-  const topCounties = data[data.length - 1].values
-    .filter(d => d.level === 'county' && d.fip_code !== '00000')
-    .sort((a, b) => descending(xAccessor(a), xAccessor(b)))
-    .slice(0, 10);
+  const topCounties = mostRecentData.sort((a, b) => descending(xAccessor(a), xAccessor(b))).slice(0, 10);
 
   return (
     <div className="maps content">
-      {data.slice(-1).map((d, idx) => {
-        return (
-          <Map
-            key={`map-for-${d.dt.format('YYYY-MM-DD')}`}
-            colorScale={colorScale}
-            idx={data.length - 1}
-            dt={d.dt}
-            width={width}
-            height={height}
-            geoJson={geoJson}
-            path={path}
-          />
-        );
-      })}
+      <Map colorScale={colorScale} width={width} height={height} geoJson={geoJson} path={path} />
       <TopCounties counties={topCounties} />
       <ThresholdLegend colorScale={colorScale} />
       <p className="citation">
-        Source:{' '}
-        <a className="link" href="https://coronavirus.1point3acres.com/en" target="_blank" rel="noopener noreferrer">
-          COVID-19 in US and Canada
+        Data Source:{' '}
+        <a className="link" href="https://github.com/nytimes/covid-19-data" target="_blank" rel="noopener noreferrer">
+          NY Times
         </a>
       </p>
     </div>
