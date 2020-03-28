@@ -3,10 +3,10 @@ import { useSelector } from 'react-redux';
 import Sparkline from './Sparkline';
 import './index.scss';
 
-const Tooltip = () => {
+const Tooltip = ({ isPlaying }) => {
   const tooltip = useSelector(state => state.global.tooltip);
 
-  if (!tooltip) return null;
+  if (!tooltip || isPlaying) return null;
 
   const { top, left, confirmed, name, state, dt, points } = tooltip;
 
