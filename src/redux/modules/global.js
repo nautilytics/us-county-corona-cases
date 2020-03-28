@@ -1,12 +1,16 @@
 import { initialState } from '../state/global';
 import { getData, getTopology } from '../api';
 import { IS_CLICKED } from '../../constant';
+import { getMaxDate, getMinDate, xAccessor } from '../../utils';
+import { nest } from 'd3-collection';
+import { scaleThreshold } from 'd3-scale';
+import { schemeRdYlGn } from 'd3-scale-chromatic';
+import { max } from 'd3-array';
 
 // Actions
 const TOGGLE_LOADING_ICON = 'TOGGLE_LOADING_ICON';
 export const UPDATE_TOOLTIP = 'UPDATE_TOOLTIP';
-export const UPDATE_CURRENT_INDEX = 'UPDATE_CURRENT_INDEX';
-export const TOGGLE_PLAY = 'TOGGLE_PLAY';
+export const TIMER_TICK = 'TIMER_TICK';
 const UPDATE_DATA = 'UPDATE_DATA';
 const UPDATE_TOPOLOGY = 'UPDATE_TOPOLOGY';
 const SHOW_ERROR = 'SHOW_ERROR';
@@ -27,14 +31,43 @@ const handleTooltip = (state, item) => {
   }
 };
 
+const handleCountyLevelData = (state, data) => {
+  const minDate = getMinDate(data);
+  const maxDate = getMaxDate(data);
+  const numberOfPeriods = maxDate.diff(minDate, 'days');
+  return {
+    ...state,
+    data,
+    nestedData: nest()
+      .key(d => d.dt.format())
+      .entries(data),
+    numberOfPeriods,
+    colorScale: scaleThreshold()
+      .range(schemeRdYlGn[8].reverse())
+      .domain([1, 10, 20, 50, 100, 200, 500, max(data, xAccessor)]),
+    currentIndex: numberOfPeriods,
+  };
+};
+
+const handleCurrentIndex = state => {
+  if (state.currentIndex < state.numberOfPeriods) {
+    return {
+      ...state,
+      currentIndex: state.currentIndex + 1,
+    };
+  } else {
+    return {
+      ...state,
+      currentIndex: 0,
+    };
+  }
+};
+
 // Reducer
 export default function reducer(state = initialState, action) {
   switch (action.type) {
     case UPDATE_DATA:
-      return {
-        ...state,
-        data: action.data,
-      };
+      return handleCountyLevelData(state, action.data);
     case UPDATE_TOPOLOGY:
       return {
         ...state,
@@ -45,16 +78,8 @@ export default function reducer(state = initialState, action) {
         ...state,
         tooltip: handleTooltip(state, action.item),
       };
-    case TOGGLE_PLAY:
-      return {
-        ...state,
-        isPlaying: !state.isPlaying,
-      };
-    case UPDATE_CURRENT_INDEX:
-      return {
-        ...state,
-        currentIndex: state.currentIndex + 1,
-      };
+    case TIMER_TICK:
+      return handleCurrentIndex(state);
     case SHOW_ERROR:
       return {
         ...state,

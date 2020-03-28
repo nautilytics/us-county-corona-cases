@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect';
-import { getMaxDate } from '../../utils';
 
-const dataSelector = state => state.global.data;
+const nestedDataSelector = state => state.global.nestedData;
+const currentIndexSelector = state => state.global.currentIndex;
 
-const mostRecentDataSelector = createSelector([dataSelector], data => {
-  return data.filter(d => d.dt.isSame(getMaxDate(data)));
+const mostRecentDataSelector = createSelector([nestedDataSelector, currentIndexSelector], (data, currentIndex) => {
+  return data[currentIndex];
 });
 
 export default mostRecentDataSelector;

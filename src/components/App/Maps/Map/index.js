@@ -3,24 +3,25 @@ import { useSelector } from 'react-redux';
 import * as topojson from 'topojson-client';
 import Path from './Path';
 import { NUMBER_FORMAT } from '../../../../constant';
-import { getMaxDate, xAccessor } from '../../../../utils';
+import { xAccessor } from '../../../../utils';
 import mostRecentDataSelector from '../../../../redux/selectors/most.recent.data.selector';
 import { ascending } from 'd3-array';
+import moment from 'moment';
 
-const Map = ({ colorScale, path, geoJson, width, height, dt }) => {
+const Map = ({ colorScale, path, geoJson, width, height }) => {
   const topology = useSelector(state => state.global.topology);
   const data = useSelector(mostRecentDataSelector);
   const allData = useSelector(state => state.global.data);
-  const mostRecentDate = getMaxDate(data);
+  const dt = moment(data.key);
 
   return (
     <div className="map">
-      <h4>{`Last updated on ${mostRecentDate.format('MMM DD, YYYY')}`}</h4>
+      <h3>{`Updated on ${dt.format('MMM DD, YYYY')}`}</h3>
       <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height}>
         <g className="map-container">
           {geoJson.features.map(feature => {
             const id = feature.id.toString().padStart(5, '0');
-            const matchingRow = data.find(x => x.fips === id);
+            const matchingRow = data.values.find(x => x.fips === id);
             let value = 0;
             let state = '';
             if (matchingRow) {
@@ -50,7 +51,7 @@ const Map = ({ colorScale, path, geoJson, width, height, dt }) => {
                   id,
                   path: path(feature),
                   state,
-                  dt: mostRecentDate,
+                  dt,
                   value,
                   points,
                   confirmed: NUMBER_FORMAT(value),

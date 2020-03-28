@@ -1,32 +1,49 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import Spinner from './Spinner';
 import Tooltip from './Tooltip';
 import { useDispatch, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
 import Maps from './Maps';
-import { retrieveData, TOGGLE_PLAY } from '../../redux/modules/global';
+import { retrieveData, TIMER_TICK } from '../../redux/modules/global';
+import { DURATION } from '../../constant';
 
 const App = () => {
   const dispatch = useDispatch();
+  const [timer, setTimer] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const topology = useSelector(state => state.global.topology);
   const data = useSelector(state => state.global.data);
-  const isPlaying = useSelector(state => state.global.isPlaying);
   const getData = useCallback(() => dispatch(retrieveData()), [dispatch]);
-  const updateIsPlaying = useCallback(() => dispatch({ type: TOGGLE_PLAY }), [dispatch]);
+  const tickTimer = useCallback(() => dispatch({ type: TIMER_TICK }), [dispatch]);
 
   useEffect(() => {
     getData();
   }, []);
 
   const icon = isPlaying ? faPause : faPlay;
-  console.log(isPlaying, icon);
-  const onClick = () => updateIsPlaying();
+
+  const start = () => {
+    setTimer(setInterval(() => tickTimer(), DURATION));
+    setIsPlaying(true);
+    tickTimer();
+  };
+  const stop = () => {
+    setIsPlaying(false);
+    setTimer(clearInterval(timer));
+  };
 
   return (
     <div className="main">
-      <Tooltip />
-      <FontAwesomeIcon size="lg" className={`${isPlaying} ? 'pause' : 'play'} button`} icon={icon} onClick={onClick} />
+      <Tooltip isPlaying={isPlaying} />
+      <FontAwesomeIcon
+        size="lg"
+        className={`${isPlaying} ? 'pause' : 'play'} button`}
+        icon={icon}
+        onClick={() => {
+          isPlaying ? stop() : start();
+        }}
+      />
       {topology && data.length ? <Maps /> : <Spinner />}
     </div>
   );
